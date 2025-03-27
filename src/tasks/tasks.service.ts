@@ -50,15 +50,12 @@ export class TasksService {
     this.tasks = this.tasks.filter((task) => task.id !== id);
   }
 
-  updateStatus(
-    id: string,
-    updateTaskStatusDTO: UpdateTaskStatusDTO,
-  ): Task | undefined {
+  updateStatus(id: string, updateTaskStatusDTO: UpdateTaskStatusDTO): Task {
     const { status } = updateTaskStatusDTO;
-    const task = this.tasks.find((task) => task.id === id);
-    if (task) {
-      task.status = status;
-    }
+    const task = this.getTaskById(id);
+
+    task.status = status;
+
     return task;
   }
 }
