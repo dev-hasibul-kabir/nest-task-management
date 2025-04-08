@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { CreateTaskDTO } from './dto/create-task.dto';
 // import { GetTasksSearchFilterDto } from './dto/get-tasks-search-filter.dto';
-// import { UpdateTaskStatusDTO } from './dto/update-task-status.dto';
+import { UpdateTaskStatusDTO } from './dto/update-task-status.dto';
 import { Task } from './task.entity';
 import { TasksRepository } from './tasks.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -53,12 +53,14 @@ export class TasksService {
     }
   }
 
-  // updateStatus(id: string, updateTaskStatusDTO: UpdateTaskStatusDTO): Task {
-  //   const { status } = updateTaskStatusDTO;
-  //   const task = this.getTaskById(id);
-
-  //   task.status = status;
-
-  //   return task;
-  // }
+  async updateStatus(
+    id: string,
+    updateTaskStatusDTO: UpdateTaskStatusDTO,
+  ): Promise<void> {
+    const { status } = updateTaskStatusDTO;
+    const result = await this.taskRepository.update(id, { status });
+    if (result.affected === 0) {
+      throw new NotFoundException();
+    }
+  }
 }
