@@ -15,10 +15,6 @@ export class TasksService {
     private taskRepository: TasksRepository,
   ) {}
 
-  // getAllTasks(): Task[] {
-  //   return this.tasks;
-  // }
-
   // getTasksWithSearchFilter(searchFilterDto: GetTasksSearchFilterDto): Task[] {
   //   const { search, status } = searchFilterDto;
   //   let tasks = this.getAllTasks();
@@ -50,9 +46,12 @@ export class TasksService {
     return task;
   }
 
-  // deleteTask(id: string): void {
-  //   this.tasks = this.tasks.filter((task) => task.id !== id);
-  // }
+  async deleteTask(id: string): Promise<void> {
+    const result = await this.taskRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`No data found with Id - ${id}`);
+    }
+  }
 
   // updateStatus(id: string, updateTaskStatusDTO: UpdateTaskStatusDTO): Task {
   //   const { status } = updateTaskStatusDTO;
