@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { CreateTaskDTO } from './dto/create-task.dto';
-// import { GetTasksSearchFilterDto } from './dto/get-tasks-search-filter.dto';
+import { GetTasksSearchFilterDto } from './dto/get-tasks-search-filter.dto';
 import { UpdateTaskStatusDTO } from './dto/update-task-status.dto';
 import { Task } from './task.entity';
 import { TasksRepository } from './tasks.repository';
@@ -15,17 +15,22 @@ export class TasksService {
     private taskRepository: TasksRepository,
   ) {}
 
-  // getTasksWithSearchFilter(searchFilterDto: GetTasksSearchFilterDto): Task[] {
-  //   const { search, status } = searchFilterDto;
-  //   let tasks = this.getAllTasks();
-  //   if (status) {
-  //     tasks = tasks.filter((task) => task.status === status);
-  //   }
-  //   if (search) {
-  //     tasks = tasks.filter((task) => task.title.toLowerCase().includes(search));
-  //   }
-  //   return tasks;
-  // }
+  async getTasks(searchFilterDto: GetTasksSearchFilterDto): Promise<Task[]> {
+    const { search, status } = searchFilterDto;
+    const query = this.taskRepository.createQueryBuilder('task');
+
+    if (search) {
+      query.andWhere('LOWER(task.title) LIKE LOWER(:search)', {
+        search: `%${search}%`,
+      });
+    }
+    if (status) {
+      query.andWhere('task.status = :status', { status });
+    }
+
+    const tasks = await query.getMany();
+    return tasks;
+  }
 
   async createTask(createTaskDTO: CreateTaskDTO): Promise<Task> {
     const { title, description } = createTaskDTO;

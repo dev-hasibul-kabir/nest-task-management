@@ -6,11 +6,11 @@ import {
   Param,
   Post,
   Patch,
-  // Query,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDTO } from './dto/create-task.dto';
-// import { GetTasksSearchFilterDto } from './dto/get-tasks-search-filter.dto';
+import { GetTasksSearchFilterDto } from './dto/get-tasks-search-filter.dto';
 import { UpdateTaskStatusDTO } from './dto/update-task-status.dto';
 import { Task } from './task.entity';
 
@@ -18,14 +18,10 @@ import { Task } from './task.entity';
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
-  // @Get()
-  // getTasks(@Query() searchFilterDto: GetTasksSearchFilterDto): Task[] {
-  //   if (Object.keys(searchFilterDto).length) {
-  //     return this.tasksService.getTasksWithSearchFilter(searchFilterDto);
-  //   } else {
-  //     return this.tasksService.getAllTasks();
-  //   }
-  // }
+  @Get()
+  getTasks(@Query() searchFilterDto: GetTasksSearchFilterDto): Promise<Task[]> {
+    return this.tasksService.getTasks(searchFilterDto);
+  }
 
   @Post()
   createTask(@Body() createTaskDTO: CreateTaskDTO): Promise<Task> {
