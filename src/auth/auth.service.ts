@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ConflictException,
   Injectable,
@@ -7,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { AuthCredentialDto } from './dto/auth-credential.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +19,15 @@ export class AuthService {
 
   async createUser(authCredentialDto: AuthCredentialDto): Promise<void> {
     const { email, password } = authCredentialDto;
-    const user = this.authRepository.create({ email, password });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const salt = await bcrypt.genSalt();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = this.authRepository.create({
+      email,
+      password: hashedPassword,
+    });
 
     try {
       await this.authRepository.save(user);
