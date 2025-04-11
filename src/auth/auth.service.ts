@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
@@ -15,6 +19,16 @@ export class AuthService {
     const { email, password } = authCredentialDto;
     const user = this.authRepository.create({ email, password });
 
-    await this.authRepository.save(user);
+    try {
+      await this.authRepository.save(user);
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error?.code === '23505') {
+        // emai already exist error code
+        throw new ConflictException('Email already exists!');
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }
