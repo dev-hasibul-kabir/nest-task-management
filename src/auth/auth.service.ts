@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
@@ -19,9 +19,9 @@ export class AuthService {
 
   async createUser(authCredentialDto: AuthCredentialDto): Promise<void> {
     const { email, password } = authCredentialDto;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     const salt = await bcrypt.genSalt();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = this.authRepository.create({
@@ -39,6 +39,16 @@ export class AuthService {
       } else {
         throw new InternalServerErrorException();
       }
+    }
+  }
+
+  async signin(authCredentialDto: AuthCredentialDto): Promise<string> {
+    const { email, password } = authCredentialDto;
+    const user = await this.authRepository.findOne({ where: { email } });
+    if (user && (await bcrypt.compare(password, user.password))) {
+      return 'Successfully logged in';
+    } else {
+      throw new UnauthorizedException('Invalid email or password!');
     }
   }
 }
