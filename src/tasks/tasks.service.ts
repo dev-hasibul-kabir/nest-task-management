@@ -16,10 +16,14 @@ export class TasksService {
     private taskRepository: TasksRepository,
   ) {}
 
-  async getTasks(searchFilterDto: GetTasksSearchFilterDto): Promise<Task[]> {
+  async getTasks(
+    searchFilterDto: GetTasksSearchFilterDto,
+    user: User,
+  ): Promise<Task[]> {
     const { search, status } = searchFilterDto;
     const query = this.taskRepository.createQueryBuilder('task');
 
+    query.where({ user });
     if (search) {
       query.andWhere('LOWER(task.title) LIKE LOWER(:search)', {
         search: `%${search}%`,
