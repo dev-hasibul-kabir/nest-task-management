@@ -69,9 +69,10 @@ export class TasksService {
   async updateStatus(
     id: string,
     updateTaskStatusDTO: UpdateTaskStatusDTO,
+    user: User,
   ): Promise<void> {
     const { status } = updateTaskStatusDTO;
-    const result = await this.taskRepository.update(id, { status });
+    const result = await this.taskRepository.update({ id, user }, { status });
     if (result.affected === 0) {
       throw new NotFoundException();
     }
